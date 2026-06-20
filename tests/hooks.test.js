@@ -187,6 +187,24 @@ assert.equal(
   'kiro hooks must not write mode state to codex PLUGIN_DATA',
 );
 
+const kiroHome = path.join(temp, 'custom-kiro-home');
+const kiroDefaultHome = path.join(temp, 'kiro-default-home');
+fs.mkdirSync(kiroDefaultHome, { recursive: true });
+result = run('ponytail-activate.js', {
+  HOME: kiroDefaultHome,
+  USERPROFILE: kiroDefaultHome,
+  KIRO_HOME: kiroHome,
+  PONYTAIL_HOST: 'kiro',
+  PONYTAIL_DEFAULT_MODE: 'lite',
+});
+assert.equal(result.status, 0, result.stderr);
+assert.equal(fs.readFileSync(path.join(kiroHome, 'ponytail', '.ponytail-active'), 'utf8'), 'lite');
+assert.equal(
+  fs.existsSync(path.join(kiroDefaultHome, '.kiro', 'ponytail', '.ponytail-active')),
+  false,
+  'KIRO_HOME must keep a custom-profile run out of the default ~/.kiro state dir',
+);
+
 result = run(
   'ponytail-mode-tracker.js',
   kiroEnv,
@@ -200,8 +218,11 @@ assert.throws(() => JSON.parse(result.stdout), SyntaxError, 'kiro hook output mu
 const kiroConfig = JSON.parse(fs.readFileSync(path.join(root, '.kiro', 'agents', 'ponytail.json'), 'utf8'));
 assert.equal(kiroConfig.name, 'ponytail');
 assert.match(kiroConfig.hooks.agentSpawn[0].command, /PONYTAIL_HOST=kiro/);
+assert.match(kiroConfig.hooks.agentSpawn[0].command, /\$\{KIRO_HOME:-\$HOME\/\.kiro\}/);
 assert.match(kiroConfig.hooks.userPromptSubmit[0].command, /PONYTAIL_HOST=kiro/);
+assert.match(kiroConfig.hooks.userPromptSubmit[0].command, /\$\{KIRO_HOME:-\$HOME\/\.kiro\}/);
 assert.equal(kiroConfig.hooks.agentSpawn[0].timeout_ms, 5000);
+assert.doesNotMatch(kiroConfig.prompt, /The best code is the code never written/);
 assert.ok(kiroConfig.resources.includes('skill://~/.kiro/skills/*/SKILL.md'));
 
 fs.rmSync(temp, { recursive: true, force: true });
