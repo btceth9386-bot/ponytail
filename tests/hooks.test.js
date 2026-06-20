@@ -197,7 +197,7 @@ assert.equal(fs.readFileSync(path.join(home, '.kiro', 'ponytail', '.ponytail-act
 assert.match(result.stdout, /PONYTAIL MODE CHANGED — level: ultra/);
 assert.throws(() => JSON.parse(result.stdout), SyntaxError, 'kiro hook output must stay raw text');
 
-const kiroConfig = JSON.parse(fs.readFileSync(path.join(root, 'kiro', 'ponytail.json'), 'utf8'));
+const kiroConfig = JSON.parse(fs.readFileSync(path.join(root, '.kiro', 'agents', 'ponytail.json'), 'utf8'));
 assert.equal(kiroConfig.name, 'ponytail');
 assert.match(kiroConfig.hooks.agentSpawn[0].command, /PONYTAIL_HOST=kiro/);
 assert.match(kiroConfig.hooks.userPromptSubmit[0].command, /PONYTAIL_HOST=kiro/);

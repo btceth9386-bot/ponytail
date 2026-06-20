@@ -148,7 +148,7 @@ Kiro has no marketplace/plugin install flow. Install ponytail by copying this re
 mkdir -p ~/.kiro/ponytail ~/.kiro/skills ~/.kiro/agents
 cp -R hooks ~/.kiro/ponytail/
 cp -R skills/* ~/.kiro/skills/
-cp kiro/ponytail.json ~/.kiro/agents/ponytail.json
+cp .kiro/agents/ponytail.json ~/.kiro/agents/ponytail.json
 ```
 
 In Kiro, switch to it with:
