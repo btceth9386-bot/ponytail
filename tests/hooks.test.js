@@ -155,5 +155,54 @@ assert.equal(
 output = JSON.parse(result.stdout);
 assert.deepEqual(output, {});
 
+const kiroEnv = {
+  HOME: home,
+  USERPROFILE: home,
+  PLUGIN_DATA: path.join(temp, 'kiro-plugin-data-shadow'),
+  PONYTAIL_HOST: 'kiro',
+  PONYTAIL_DEFAULT_MODE: 'full',
+};
+
+result = spawnSync(process.execPath, ['-e', `
+process.env.PONYTAIL_HOST = 'kiro';
+process.env.PLUGIN_DATA = 'shadow';
+const r = require('./hooks/ponytail-runtime');
+console.log(JSON.stringify({ isKiro: r.isKiro, isCodex: r.isCodex, isCopilot: r.isCopilot }));
+`], {
+  cwd: root,
+  env: { ...process.env, HOME: home, USERPROFILE: home },
+  encoding: 'utf8',
+});
+assert.equal(result.status, 0, result.stderr);
+assert.deepEqual(JSON.parse(result.stdout), { isKiro: true, isCodex: false, isCopilot: false });
+
+result = run('ponytail-activate.js', kiroEnv, JSON.stringify({ hook_event_name: 'agentSpawn' }));
+assert.equal(result.status, 0, result.stderr);
+assert.match(result.stdout, /PONYTAIL MODE ACTIVE — level: full/);
+assert.doesNotMatch(result.stdout, /STATUSLINE SETUP NEEDED/);
+assert.equal(fs.readFileSync(path.join(home, '.kiro', 'ponytail', '.ponytail-active'), 'utf8'), 'full');
+assert.equal(
+  fs.existsSync(path.join(kiroEnv.PLUGIN_DATA, '.ponytail-active')),
+  false,
+  'kiro hooks must not write mode state to codex PLUGIN_DATA',
+);
+
+result = run(
+  'ponytail-mode-tracker.js',
+  kiroEnv,
+  JSON.stringify({ hook_event_name: 'userPromptSubmit', prompt: '/ponytail ultra' }),
+);
+assert.equal(result.status, 0, result.stderr);
+assert.equal(fs.readFileSync(path.join(home, '.kiro', 'ponytail', '.ponytail-active'), 'utf8'), 'ultra');
+assert.match(result.stdout, /PONYTAIL MODE CHANGED — level: ultra/);
+assert.throws(() => JSON.parse(result.stdout), SyntaxError, 'kiro hook output must stay raw text');
+
+const kiroConfig = JSON.parse(fs.readFileSync(path.join(root, '.kiro', 'agents', 'ponytail.json'), 'utf8'));
+assert.equal(kiroConfig.name, 'ponytail');
+assert.match(kiroConfig.hooks.agentSpawn[0].command, /PONYTAIL_HOST=kiro/);
+assert.match(kiroConfig.hooks.userPromptSubmit[0].command, /PONYTAIL_HOST=kiro/);
+assert.equal(kiroConfig.hooks.agentSpawn[0].timeout_ms, 5000);
+assert.ok(kiroConfig.resources.includes('skill://~/.kiro/skills/*/SKILL.md'));
+
 fs.rmSync(temp, { recursive: true, force: true });
 console.log('hook compatibility checks passed');
