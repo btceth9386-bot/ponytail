@@ -151,6 +151,8 @@ cp -R skills/* ~/.kiro/skills/
 cp .kiro/agents/ponytail.json ~/.kiro/agents/ponytail.json
 ```
 
+If `KIRO_HOME` is set, replace `~/.kiro` in those install commands with `$KIRO_HOME`; the bundled hook commands already use `${KIRO_HOME:-$HOME/.kiro}`.
+
 In Kiro, switch to it with:
 
 ```text
@@ -220,7 +222,7 @@ Set the level for every new session with the `PONYTAIL_DEFAULT_MODE` env var (`l
 
 Cursor, Windsurf, Cline, GitHub Copilot (editor), Aider, Kiro IDE, Zed, CodeWhale: copy the matching rules file from this repo ([`.cursor/rules/`](.cursor/rules/), [`.windsurf/rules/`](.windsurf/rules/), [`.clinerules/`](.clinerules/), [`.github/copilot-instructions.md`](.github/copilot-instructions.md), [`AGENTS.md`](AGENTS.md), [`.kiro/steering/`](.kiro/steering/)).
 
-Kiro IDE instruction-only mode: copy `.kiro/steering/ponytail.md` to `~/.kiro/steering/` (global) or `.kiro/steering/` in your project.
+Kiro IDE instruction-only mode: copy `.kiro/steering/ponytail.md` to `~/.kiro/steering/` (global) or `.kiro/steering/` in your project. If `KIRO_HOME` is set, use `$KIRO_HOME/steering/` for the global path.
 
 GitHub Copilot CLI fallback (instruction-only mode): it reads `AGENTS.md` and `.github/copilot-instructions.md` in a project, or copy the rules into `~/.copilot/copilot-instructions.md` to run ponytail in every project. This path keeps always-on guidance, but does not add plugin mode switches or hooks.
 

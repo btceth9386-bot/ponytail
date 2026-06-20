@@ -1,7 +1,7 @@
 {
   "name": "ponytail",
   "description": "Lazy senior dev mode. Forces the simplest solution that works.",
-  "prompt": "You are a lazy senior developer. Lazy means efficient, not careless. The best code is the code never written. Before any code: does it need to exist (YAGNI)? Standard library? Native platform feature? One line? Build the minimum that works. Mark intentional simplifications with a ponytail: comment.",
+  "prompt": "Ponytail lazy senior dev mode. Rules are injected by the agentSpawn hook; follow them.",
   "resources": [
     "skill://~/.kiro/skills/*/SKILL.md",
     "skill://.kiro/skills/*/SKILL.md"
@@ -9,13 +9,13 @@
   "hooks": {
     "agentSpawn": [
       {
-        "command": "command -v node >/dev/null 2>&1 && PONYTAIL_HOST=kiro node \"$HOME/.kiro/ponytail/hooks/ponytail-activate.js\" || exit 0",
+        "command": "command -v node >/dev/null 2>&1 && PONYTAIL_HOST=kiro node \"${KIRO_HOME:-$HOME/.kiro}/ponytail/hooks/ponytail-activate.js\" || exit 0",
         "timeout_ms": 5000
       }
     ],
     "userPromptSubmit": [
       {
-        "command": "command -v node >/dev/null 2>&1 && PONYTAIL_HOST=kiro node \"$HOME/.kiro/ponytail/hooks/ponytail-mode-tracker.js\" || exit 0",
+        "command": "command -v node >/dev/null 2>&1 && PONYTAIL_HOST=kiro node \"${KIRO_HOME:-$HOME/.kiro}/ponytail/hooks/ponytail-mode-tracker.js\" || exit 0",
         "timeout_ms": 5000
       }
     ]

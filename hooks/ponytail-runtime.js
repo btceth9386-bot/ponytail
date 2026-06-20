@@ -11,7 +11,10 @@ const isCodex = !isCopilot && !isKiro && Boolean(process.env.PLUGIN_DATA);
 let stateDir = getClaudeDir();
 if (isCodex) stateDir = process.env.PLUGIN_DATA;
 if (isCopilot) stateDir = process.env.COPILOT_PLUGIN_DATA;
-if (isKiro) stateDir = path.join(os.homedir(), '.kiro', 'ponytail');
+if (isKiro) {
+  const kiroHome = process.env.KIRO_HOME || path.join(os.homedir(), '.kiro');
+  stateDir = path.join(kiroHome, 'ponytail');
+}
 
 const statePath = path.join(stateDir, STATE_FILE);
 
